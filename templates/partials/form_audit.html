@@ -1,0 +1,44 @@
+<!-- DENETIM VE LOGLAMA -->
+<div class="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden">
+  <div class="section-header flex items-center justify-between px-4 py-3 bg-slate-800/80 hover:bg-slate-800 transition-colors"
+       data-section="audit" onclick="toggleSection('audit-body')">
+    <div class="flex items-center gap-2">
+      <div class="w-2 h-2 bg-green-400 rounded-full"></div>
+      <span class="font-semibold text-sm text-white">Denetim ve Loglama</span>
+      <span class="badge bg-green-900/60 text-green-300">Izleme</span>
+    </div>
+    <svg class="w-4 h-4 text-slate-400 arrow-icon transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+    </svg>
+  </div>
+
+  <div class="section-body" id="audit-body">
+    <div class="p-4 space-y-1">
+
+      <label class="flex items-start gap-3 cursor-pointer scan-item p-2 rounded-lg">
+        <input type="checkbox" id="audit_auditd" class="chk-audit w-4 h-4 mt-0.5 flex-shrink-0" onchange="updatePreview()">
+        <div>
+          <div class="text-sm font-medium text-white">auditd Aktif Et</div>
+          <div class="text-xs text-slate-400 terminal-font mt-0.5">systemctl enable auditd &amp;&amp; start</div>
+        </div>
+      </label>
+
+      <label class="flex items-start gap-3 cursor-pointer scan-item p-2 rounded-lg">
+        <input type="checkbox" id="audit_sudo_log" class="chk-audit w-4 h-4 mt-0.5 flex-shrink-0" onchange="updatePreview()">
+        <div>
+          <div class="text-sm font-medium text-white">Sudo Komutlarini Logla</div>
+          <div class="text-xs text-slate-400 terminal-font mt-0.5">Defaults logfile=/var/log/sudo.log</div>
+        </div>
+      </label>
+
+      <label class="flex items-start gap-3 cursor-pointer scan-item p-2 rounded-lg">
+        <input type="checkbox" id="audit_coredump" class="chk-audit w-4 h-4 mt-0.5 flex-shrink-0" onchange="updatePreview()">
+        <div>
+          <div class="text-sm font-medium text-white">Core Dump Kapatilsin</div>
+          <div class="text-xs text-slate-400 terminal-font mt-0.5">* hard core 0 &bull; * soft core 0</div>
+        </div>
+      </label>
+
+    </div>
+  </div>
+</div>

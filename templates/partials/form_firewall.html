@@ -1,0 +1,52 @@
+<!-- FIREWALL (UFW) -->
+<div class="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden">
+  <div class="section-header flex items-center justify-between px-4 py-3 bg-slate-800/80 hover:bg-slate-800 transition-colors"
+       data-section="fw" onclick="toggleSection('fw-body')">
+    <div class="flex items-center gap-2">
+      <div class="w-2 h-2 bg-blue-400 rounded-full"></div>
+      <span class="font-semibold text-sm text-white">Firewall (UFW)</span>
+      <span class="badge bg-blue-900/60 text-blue-300">Ag</span>
+    </div>
+    <svg class="w-4 h-4 text-slate-400 arrow-icon transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+    </svg>
+  </div>
+
+  <div class="section-body" id="fw-body">
+    <div class="p-4 space-y-1">
+
+      <label class="flex items-start gap-3 cursor-pointer scan-item p-2 rounded-lg">
+        <input type="checkbox" id="fw_enable" class="chk-fw w-4 h-4 mt-0.5 flex-shrink-0" onchange="updatePreview()">
+        <div>
+          <div class="text-sm font-medium text-white">UFW Aktif Et</div>
+          <div class="text-xs text-slate-400 terminal-font mt-0.5">default deny incoming &bull; allow outgoing</div>
+        </div>
+      </label>
+
+      <div class="ml-6 space-y-1 border-l-2 border-slate-700 pl-3">
+        <label class="flex items-center gap-3 cursor-pointer scan-item p-2 rounded-lg">
+          <input type="checkbox" id="fw_ssh" class="chk-fw w-4 h-4" onchange="updatePreview()">
+          <div>
+            <div class="text-sm text-white">SSH Portuna Izin Ver</div>
+            <div class="text-xs text-slate-500 terminal-font">ufw allow ssh (22/tcp)</div>
+          </div>
+        </label>
+        <label class="flex items-center gap-3 cursor-pointer scan-item p-2 rounded-lg">
+          <input type="checkbox" id="fw_http" class="chk-fw w-4 h-4" onchange="updatePreview()">
+          <div>
+            <div class="text-sm text-white">HTTP Portuna Izin Ver</div>
+            <div class="text-xs text-slate-500 terminal-font">ufw allow 80/tcp</div>
+          </div>
+        </label>
+        <label class="flex items-center gap-3 cursor-pointer scan-item p-2 rounded-lg">
+          <input type="checkbox" id="fw_https" class="chk-fw w-4 h-4" onchange="updatePreview()">
+          <div>
+            <div class="text-sm text-white">HTTPS Portuna Izin Ver</div>
+            <div class="text-xs text-slate-500 terminal-font">ufw allow 443/tcp</div>
+          </div>
+        </label>
+      </div>
+
+    </div>
+  </div>
+</div>

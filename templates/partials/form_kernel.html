@@ -1,0 +1,84 @@
+<!-- KERNEL / AG OPTIMIZASYONU -->
+<div class="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden">
+  <div class="section-header flex items-center justify-between px-4 py-3 bg-slate-800/80 hover:bg-slate-800 transition-colors"
+       data-section="kernel" onclick="toggleSection('kernel-body')">
+    <div class="flex items-center gap-2">
+      <div class="w-2 h-2 bg-yellow-400 rounded-full"></div>
+      <span class="font-semibold text-sm text-white">Kernel ve Ag Optimizasyonu</span>
+      <span class="badge bg-yellow-900/60 text-yellow-300">Onemli</span>
+    </div>
+    <svg class="w-4 h-4 text-slate-400 arrow-icon transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+    </svg>
+  </div>
+
+  <div class="section-body" id="kernel-body">
+    <div class="p-4 space-y-1">
+
+      <label class="flex items-start gap-3 cursor-pointer scan-item p-2 rounded-lg">
+        <input type="checkbox" id="kernel_aslr" class="chk-kernel w-4 h-4 mt-0.5 flex-shrink-0" onchange="updatePreview()">
+        <div>
+          <div class="text-sm font-medium text-white">ASLR Maksimum Seviye</div>
+          <div class="text-xs text-slate-400 terminal-font mt-0.5">kernel.randomize_va_space = 2</div>
+        </div>
+      </label>
+
+      <label class="flex items-start gap-3 cursor-pointer scan-item p-2 rounded-lg">
+        <input type="checkbox" id="kernel_ipv6" class="chk-kernel w-4 h-4 mt-0.5 flex-shrink-0" onchange="updatePreview()">
+        <div>
+          <div class="text-sm font-medium text-white">IPv6 Tamamen Kapatilsin</div>
+          <div class="text-xs text-slate-400 terminal-font mt-0.5">net.ipv6.conf.all.disable_ipv6 = 1</div>
+        </div>
+      </label>
+
+      <label class="flex items-start gap-3 cursor-pointer scan-item p-2 rounded-lg">
+        <input type="checkbox" id="kernel_syn" class="chk-kernel w-4 h-4 mt-0.5 flex-shrink-0" onchange="updatePreview()">
+        <div>
+          <div class="text-sm font-medium text-white">SYN Cookies Aktif</div>
+          <div class="text-xs text-slate-400 terminal-font mt-0.5">net.ipv4.tcp_syncookies = 1</div>
+        </div>
+      </label>
+
+      <label class="flex items-start gap-3 cursor-pointer scan-item p-2 rounded-lg">
+        <input type="checkbox" id="kernel_rp" class="chk-kernel w-4 h-4 mt-0.5 flex-shrink-0" onchange="updatePreview()">
+        <div>
+          <div class="text-sm font-medium text-white">Reverse Path Filtering</div>
+          <div class="text-xs text-slate-400 terminal-font mt-0.5">net.ipv4.conf.all.rp_filter = 1</div>
+        </div>
+      </label>
+
+      <label class="flex items-start gap-3 cursor-pointer scan-item p-2 rounded-lg">
+        <input type="checkbox" id="kernel_icmp" class="chk-kernel w-4 h-4 mt-0.5 flex-shrink-0" onchange="updatePreview()">
+        <div>
+          <div class="text-sm font-medium text-white">ICMP Yonlendirme Kabulu Kapali</div>
+          <div class="text-xs text-slate-400 terminal-font mt-0.5">accept_redirects = 0</div>
+        </div>
+      </label>
+
+      <label class="flex items-start gap-3 cursor-pointer scan-item p-2 rounded-lg">
+        <input type="checkbox" id="kernel_ipfwd" class="chk-kernel w-4 h-4 mt-0.5 flex-shrink-0" onchange="updatePreview()">
+        <div>
+          <div class="text-sm font-medium text-white">IP Forwarding Kapali</div>
+          <div class="text-xs text-slate-400 terminal-font mt-0.5">net.ipv4.ip_forward = 0</div>
+        </div>
+      </label>
+
+      <label class="flex items-start gap-3 cursor-pointer scan-item p-2 rounded-lg">
+        <input type="checkbox" id="kernel_martians" class="chk-kernel w-4 h-4 mt-0.5 flex-shrink-0" onchange="updatePreview()">
+        <div>
+          <div class="text-sm font-medium text-white">Martian Paket Loglama</div>
+          <div class="text-xs text-slate-400 terminal-font mt-0.5">net.ipv4.conf.all.log_martians = 1</div>
+        </div>
+      </label>
+
+      <label class="flex items-start gap-3 cursor-pointer scan-item p-2 rounded-lg">
+        <input type="checkbox" id="kernel_coredump" class="chk-kernel w-4 h-4 mt-0.5 flex-shrink-0" onchange="updatePreview()">
+        <div>
+          <div class="text-sm font-medium text-white">SUID Core Dump Kapali</div>
+          <div class="text-xs text-slate-400 terminal-font mt-0.5">fs.suid_dumpable = 0</div>
+        </div>
+      </label>
+
+    </div>
+  </div>
+</div>

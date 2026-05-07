@@ -1,0 +1,52 @@
+<!-- IZINLER VE SUID/SGID -->
+<div class="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden">
+  <div class="section-header flex items-center justify-between px-4 py-3 bg-slate-800/80 hover:bg-slate-800 transition-colors"
+       data-section="perms" onclick="toggleSection('perms-body')">
+    <div class="flex items-center gap-2">
+      <div class="w-2 h-2 bg-orange-400 rounded-full"></div>
+      <span class="font-semibold text-sm text-white">Izinler ve SUID/SGID</span>
+      <span class="badge bg-orange-900/60 text-orange-300">Yuksek Risk</span>
+    </div>
+    <svg class="w-4 h-4 text-slate-400 arrow-icon transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+    </svg>
+  </div>
+
+  <div class="section-body" id="perms-body">
+    <div class="p-4 space-y-1">
+
+      <label class="flex items-start gap-3 cursor-pointer scan-item p-2 rounded-lg">
+        <input type="checkbox" id="perms_critical" class="chk-perms w-4 h-4 mt-0.5 flex-shrink-0" onchange="updatePreview()">
+        <div>
+          <div class="text-sm font-medium text-white">Kritik Dosya Izinleri Standartlara Dondurulsun</div>
+          <div class="text-xs text-slate-400 terminal-font mt-0.5">chmod 644 /etc/passwd &bull; 640 /etc/shadow &bull; 700 /root</div>
+        </div>
+      </label>
+
+      <label class="flex items-start gap-3 cursor-pointer scan-item p-2 rounded-lg">
+        <input type="checkbox" id="perms_suid" class="chk-perms w-4 h-4 mt-0.5 flex-shrink-0" onchange="updatePreview()">
+        <div>
+          <div class="text-sm font-medium text-white">Secili SUID Dosyalarindan Yetki Kaldir</div>
+          <div class="text-xs text-slate-400 terminal-font mt-0.5">chmod u-s [dosya] &mdash; Sistem taramasindan sec</div>
+        </div>
+      </label>
+
+      <label class="flex items-start gap-3 cursor-pointer scan-item p-2 rounded-lg">
+        <input type="checkbox" id="perms_ww" class="chk-perms w-4 h-4 mt-0.5 flex-shrink-0" onchange="updatePreview()">
+        <div>
+          <div class="text-sm font-medium text-white">World-Writable Dosyalari Duzelt</div>
+          <div class="text-xs text-slate-400 terminal-font mt-0.5">chmod o-w [dosya] &mdash; Sistem taramasindan sec</div>
+        </div>
+      </label>
+
+      <label class="flex items-start gap-3 cursor-pointer scan-item p-2 rounded-lg">
+        <input type="checkbox" id="perms_orphaned" class="chk-perms w-4 h-4 mt-0.5 flex-shrink-0" onchange="updatePreview()">
+        <div>
+          <div class="text-sm font-medium text-white">Sahipsiz Dosyalari Root'a Ata</div>
+          <div class="text-xs text-slate-400 terminal-font mt-0.5">chown root:root [dosya] &mdash; Sistem taramasindan sec</div>
+        </div>
+      </label>
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,135 @@
+/* ============================================================
+   Linux Hardening Tool - Custom Styles
+   ============================================================ */
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+/* Terminal font */
+.terminal-font { font-family: 'Courier New', Courier, monospace; }
+
+/* Package cards */
+.pkg-card {
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: 2px solid #334155;
+  background: #1e293b;
+  border-radius: 12px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 180px;
+}
+.pkg-card:hover { transform: translateY(-2px); border-color: #475569; }
+.pkg-card.selected { border-color: #22d3ee !important; background: #0e4f5c !important; }
+
+/* Section accordion */
+.section-header { cursor: pointer; user-select: none; }
+.section-body { overflow: hidden; transition: max-height 0.3s ease; }
+.section-body.collapsed { max-height: 0 !important; }
+
+/* Scan items */
+.scan-item { transition: background 0.15s; border-radius: 8px; }
+.scan-item:hover { background: #1e293b; }
+
+/* Terminal preview */
+#preview-content {
+  white-space: pre;
+  word-break: break-all;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* Syntax highlight colors */
+.sh-comment  { color: #6b7280; }
+.sh-shebang  { color: #f59e0b; font-weight: bold; }
+.sh-section  { color: #38bdf8; font-weight: bold; }
+.sh-cmd      { color: #86efac; }
+.sh-echo-ok  { color: #4ade80; }
+.sh-echo-warn{ color: #fbbf24; }
+.sh-echo-err { color: #f87171; }
+.sh-var      { color: #c084fc; }
+
+/* Spinner */
+.spinner { animation: spin 0.8s linear infinite; display: inline-block; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* Toast notification */
+#toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  transition: opacity 0.35s, transform 0.35s;
+  transform: translateY(10px);
+  opacity: 0;
+  pointer-events: none;
+}
+#toast.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+
+/* Scan badge pulse */
+.pulse-dot { animation: pulse 2s infinite; }
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* Risk badges */
+.badge {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+/* Checkbox accent colors per section */
+.chk-ssh   { accent-color: #22d3ee; }
+.chk-kernel{ accent-color: #facc15; }
+.chk-perms { accent-color: #fb923c; }
+.chk-users { accent-color: #a78bfa; }
+.chk-mod   { accent-color: #f87171; }
+.chk-fw    { accent-color: #60a5fa; }
+.chk-audit { accent-color: #4ade80; }
+
+/* Number input */
+input[type=number] {
+  background: #1e293b;
+  border: 1px solid #334155;
+  color: #f1f5f9;
+  border-radius: 8px;
+  padding: 4px 10px;
+  width: 72px;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+input[type=number]:focus { border-color: #22d3ee; }
+
+/* Scan result items */
+.scan-file-item {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.1s;
+}
+.scan-file-item:hover { background: #1e293b; }
+.scan-file-item input { accent-color: #f87171; flex-shrink: 0; }
+.scan-file-item span { color: #94a3b8; font-family: 'Courier New', monospace; word-break: break-all; }
+
+/* Line numbers in preview */
+.line-num {
+  color: #334155;
+  user-select: none;
+  min-width: 32px;
+  display: inline-block;
+  text-align: right;
+  margin-right: 12px;
+}

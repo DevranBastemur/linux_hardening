@@ -1,0 +1,52 @@
+<!-- KULLANICI GUVENLIGI -->
+<div class="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden">
+  <div class="section-header flex items-center justify-between px-4 py-3 bg-slate-800/80 hover:bg-slate-800 transition-colors"
+       data-section="users" onclick="toggleSection('users-body')">
+    <div class="flex items-center gap-2">
+      <div class="w-2 h-2 bg-purple-400 rounded-full"></div>
+      <span class="font-semibold text-sm text-white">Kullanici Guvenligi</span>
+      <span class="badge bg-purple-900/60 text-purple-300">Hesaplar</span>
+    </div>
+    <svg class="w-4 h-4 text-slate-400 arrow-icon transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+    </svg>
+  </div>
+
+  <div class="section-body" id="users-body">
+    <div class="p-4 space-y-1">
+
+      <label class="flex items-start gap-3 cursor-pointer scan-item p-2 rounded-lg">
+        <input type="checkbox" id="users_lock_pw" class="chk-users w-4 h-4 mt-0.5 flex-shrink-0" onchange="updatePreview()">
+        <div>
+          <div class="text-sm font-medium text-white">Parolasiz Hesaplari Kilitle</div>
+          <div class="text-xs text-slate-400 terminal-font mt-0.5">passwd -l [kullanici]</div>
+        </div>
+      </label>
+
+      <label class="flex items-start gap-3 cursor-pointer scan-item p-2 rounded-lg">
+        <input type="checkbox" id="users_extra_root" class="chk-users w-4 h-4 mt-0.5 flex-shrink-0" onchange="updatePreview()">
+        <div>
+          <div class="text-sm font-medium text-white">UID 0 Ekstra Hesaplari Raporla</div>
+          <div class="text-xs text-slate-400 terminal-font mt-0.5">awk -F: UID==0 kontrolu</div>
+        </div>
+      </label>
+
+      <label class="flex items-start gap-3 cursor-pointer scan-item p-2 rounded-lg">
+        <input type="checkbox" id="users_shadow" class="chk-users w-4 h-4 mt-0.5 flex-shrink-0" onchange="updatePreview()">
+        <div>
+          <div class="text-sm font-medium text-white">Shadow Senkronizasyonu</div>
+          <div class="text-xs text-slate-400 terminal-font mt-0.5">pwconv</div>
+        </div>
+      </label>
+
+      <label class="flex items-start gap-3 cursor-pointer scan-item p-2 rounded-lg">
+        <input type="checkbox" id="users_pw_policy" class="chk-users w-4 h-4 mt-0.5 flex-shrink-0" onchange="updatePreview()">
+        <div>
+          <div class="text-sm font-medium text-white">Parola Politikasi (min 12 karakter)</div>
+          <div class="text-xs text-slate-400 terminal-font mt-0.5">pwquality.conf minlen = 12</div>
+        </div>
+      </label>
+
+    </div>
+  </div>
+</div>

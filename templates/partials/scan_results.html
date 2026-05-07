@@ -1,0 +1,20 @@
+<!-- SISTEM TARAMA SONUCLARI (JS tarafindan doldurulur) -->
+<div class="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden" id="scan-results-section" style="display:none">
+  <div class="section-header flex items-center justify-between px-4 py-3 bg-slate-800/80 hover:bg-slate-800 transition-colors"
+       data-section="scan" onclick="toggleSection('scan-body')">
+    <div class="flex items-center gap-2">
+      <div class="w-2 h-2 bg-pink-400 rounded-full pulse-dot"></div>
+      <span class="font-semibold text-sm text-white">Sistem Tarama Sonuclari</span>
+      <span class="badge bg-pink-900/60 text-pink-300">Canli</span>
+    </div>
+    <svg class="w-4 h-4 text-slate-400 arrow-icon transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+    </svg>
+  </div>
+
+  <div class="section-body" id="scan-body">
+    <div class="p-4 space-y-4" id="scan-content">
+      <!-- JS tarafindan doldurulur -->
+    </div>
+  </div>
+</div>

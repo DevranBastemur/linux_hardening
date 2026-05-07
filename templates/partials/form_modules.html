@@ -1,0 +1,74 @@
+<!-- KERNEL MODUL KARALISTE -->
+<div class="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden">
+  <div class="section-header flex items-center justify-between px-4 py-3 bg-slate-800/80 hover:bg-slate-800 transition-colors"
+       data-section="modules" onclick="toggleSection('modules-body')">
+    <div class="flex items-center gap-2">
+      <div class="w-2 h-2 bg-red-400 rounded-full"></div>
+      <span class="font-semibold text-sm text-white">Kernel Modul Karaliste</span>
+      <span class="badge bg-red-900/60 text-red-300">Donanim</span>
+    </div>
+    <svg class="w-4 h-4 text-slate-400 arrow-icon transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+    </svg>
+  </div>
+
+  <div class="section-body" id="modules-body">
+    <div class="p-4">
+      <p class="text-xs text-slate-500 mb-3">
+        Secilen moduller <span class="terminal-font text-slate-400">/etc/modprobe.d/hardening.conf</span> dosyasina eklenir.
+      </p>
+      <div class="grid grid-cols-2 gap-1">
+
+        <label class="flex items-center gap-2 cursor-pointer scan-item p-2 rounded-lg">
+          <input type="checkbox" id="mod_bluetooth" value="bluetooth" class="chk-mod w-4 h-4" onchange="updatePreview()">
+          <span class="text-sm text-white">Bluetooth</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer scan-item p-2 rounded-lg">
+          <input type="checkbox" id="mod_joydev" value="joydev" class="chk-mod w-4 h-4" onchange="updatePreview()">
+          <span class="text-sm text-white">Joydev</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer scan-item p-2 rounded-lg">
+          <input type="checkbox" id="mod_soundcore" value="soundcore" class="chk-mod w-4 h-4" onchange="updatePreview()">
+          <span class="text-sm text-white">Soundcore</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer scan-item p-2 rounded-lg">
+          <input type="checkbox" id="mod_usb_storage" value="usb_storage" class="chk-mod w-4 h-4" onchange="updatePreview()">
+          <span class="text-sm text-white">USB Storage</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer scan-item p-2 rounded-lg">
+          <input type="checkbox" id="mod_firewire" value="firewire" class="chk-mod w-4 h-4" onchange="updatePreview()">
+          <span class="text-sm text-white">FireWire</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer scan-item p-2 rounded-lg">
+          <input type="checkbox" id="mod_thunderbolt" value="thunderbolt" class="chk-mod w-4 h-4" onchange="updatePreview()">
+          <span class="text-sm text-white">Thunderbolt</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer scan-item p-2 rounded-lg">
+          <input type="checkbox" id="mod_cramfs" value="cramfs" class="chk-mod w-4 h-4" onchange="updatePreview()">
+          <span class="text-sm text-white">cramfs</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer scan-item p-2 rounded-lg">
+          <input type="checkbox" id="mod_dccp" value="dccp" class="chk-mod w-4 h-4" onchange="updatePreview()">
+          <span class="text-sm text-white">DCCP</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer scan-item p-2 rounded-lg">
+          <input type="checkbox" id="mod_sctp" value="sctp" class="chk-mod w-4 h-4" onchange="updatePreview()">
+          <span class="text-sm text-white">SCTP</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer scan-item p-2 rounded-lg">
+          <input type="checkbox" id="mod_rds" value="rds" class="chk-mod w-4 h-4" onchange="updatePreview()">
+          <span class="text-sm text-white">RDS</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer scan-item p-2 rounded-lg">
+          <input type="checkbox" id="mod_tipc" value="tipc" class="chk-mod w-4 h-4" onchange="updatePreview()">
+          <span class="text-sm text-white">TIPC</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer scan-item p-2 rounded-lg">
+          <input type="checkbox" id="mod_hfs" value="hfs" class="chk-mod w-4 h-4" onchange="updatePreview()">
+          <span class="text-sm text-white">HFS / HFS+</span>
+        </label>
+
+      </div>
+    </div>
+  </div>
+</div>

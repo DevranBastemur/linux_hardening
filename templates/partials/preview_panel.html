@@ -1,0 +1,57 @@
+<!-- SAG PANEL: CANLI TERMINAL ONIZLEME -->
+<div class="w-1/2 flex flex-col bg-slate-950 border-l border-slate-800">
+
+  <!-- Terminal Baslik Bari -->
+  <div class="flex items-center justify-between px-4 py-2.5 bg-slate-900 border-b border-slate-700 flex-shrink-0">
+    <div class="flex items-center gap-2">
+      <!-- macOS tarzı trafik isiklari -->
+      <div class="flex gap-1.5">
+        <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+        <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+        <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+      </div>
+      <span class="text-xs text-slate-400 terminal-font ml-1">hardening_script.sh</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <span id="line-count" class="text-xs text-slate-600 terminal-font">0 satir</span>
+      <!-- Kopyala -->
+      <button onclick="copyScript()"
+        class="flex items-center gap-1.5 bg-slate-700 hover:bg-slate-600 active:bg-slate-800 text-white text-xs px-3 py-1.5 rounded-lg transition-colors">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+        </svg>
+        Kopyala
+      </button>
+      <!-- Indir -->
+      <button onclick="downloadScript()"
+        class="flex items-center gap-1.5 bg-cyan-700 hover:bg-cyan-600 active:bg-cyan-800 text-white text-xs px-3 py-1.5 rounded-lg transition-colors">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+        </svg>
+        .sh İndir
+      </button>
+    </div>
+  </div>
+
+  <!-- Terminal Icerik -->
+  <div class="flex-1 overflow-y-auto p-4" id="preview-wrapper">
+
+    <!-- Bos durum -->
+    <div id="preview-empty" class="flex flex-col items-center justify-center h-full text-slate-700 select-none">
+      <svg class="w-14 h-14 mb-4 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+          d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+      </svg>
+      <p class="text-sm">Soldaki formdan secim yaparak scripti olusturun</p>
+      <p class="text-xs mt-1 opacity-50">veya hazir bir paket secin</p>
+    </div>
+
+    <!-- Script icerik -->
+    <pre id="preview-content"
+      class="terminal-font text-xs leading-relaxed hidden"
+      style="white-space: pre; word-break: break-all;"></pre>
+
+  </div>
+</div>

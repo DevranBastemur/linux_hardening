@@ -1,0 +1,658 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Linux Hardening Script Generator</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#020617;color:#f1f5f9;font-family:system-ui,sans-serif;overflow:hidden}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:#0a0f1e}
+::-webkit-scrollbar-thumb{background:#2d3f55;border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:#3d5068}
+.mono{font-family:'Courier New',monospace}
+
+/* Layout */
+#layout{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+#topbar{flex-shrink:0;background:#0d1526;border-bottom:1px solid #1a2740;padding:10px 18px;display:flex;align-items:center;justify-content:space-between}
+#pkgbar{flex-shrink:0;background:#0d1526;border-bottom:1px solid #1a2740;padding:8px 18px}
+#main{flex:1;display:flex;overflow:hidden;min-height:0}
+
+/* Sol panel - SCROLL BURADA */
+#left{width:50%;overflow-y:scroll;padding:10px;display:flex;flex-direction:column;gap:8px;border-right:1px solid #1a2740}
+
+/* Sag panel */
+#right{width:50%;display:flex;flex-direction:column;overflow:hidden}
+#term-hdr{flex-shrink:0;background:#0d1526;border-bottom:1px solid #1a2740;padding:8px 12px;display:flex;align-items:center;justify-content:space-between}
+#term-body{flex:1;overflow-y:scroll;padding:12px;background:#020617}
+
+/* Paket kartlari */
+.pkg{cursor:pointer;border:2px solid #1e3050;background:#0f1e35;border-radius:9px;padding:8px 13px;display:flex;align-items:center;gap:9px;transition:all .18s;user-select:none;flex-shrink:0}
+.pkg:hover{border-color:#2d4a6e;transform:translateY(-1px)}
+.pkg.on{border-color:#22d3ee!important;background:#0a3a4a!important}
+
+/* Accordion */
+.sec{background:#0a1628;border:1px solid #1a2740;border-radius:9px;overflow:hidden;flex-shrink:0}
+.sec-h{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;background:#0f1e35;cursor:pointer;user-select:none;transition:background .15s}
+.sec-h:hover{background:#162840}
+.sec-b{overflow:hidden;transition:max-height .28s ease}
+.sec-b.shut{max-height:0!important}
+.arr{transition:transform .22s;flex-shrink:0}
+.arr.dn{transform:rotate(180deg)}
+
+/* Form satirlari */
+.row{display:flex;align-items:flex-start;gap:9px;padding:5px 8px;border-radius:7px;cursor:pointer;transition:background .12s}
+.row:hover{background:#0f1e35}
+.row input[type=checkbox]{margin-top:2px;flex-shrink:0;width:14px;height:14px;cursor:pointer;accent-color:#22d3ee}
+.rtitle{font-size:12.5px;font-weight:500;color:#e2e8f0}
+.rsub{font-size:10.5px;color:#4a6080;font-family:'Courier New',monospace;margin-top:1px}
+
+/* Badge */
+.bdg{font-size:9.5px;padding:1px 6px;border-radius:999px;font-weight:700}
+
+/* Number input */
+input[type=number]{background:#0f1e35;border:1px solid #1e3050;color:#e2e8f0;border-radius:6px;padding:3px 8px;width:62px;font-size:12px;outline:none}
+input[type=number]:focus{border-color:#22d3ee}
+
+/* Butonlar */
+.btn{border:none;padding:5px 12px;border-radius:7px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:5px;font-weight:600;transition:background .15s}
+.btn-gray{background:#1a2e48;color:#cbd5e1}.btn-gray:hover{background:#243d5c}
+.btn-cyan{background:#0e6e85;color:#fff}.btn-cyan:hover{background:#0891b2}
+.btn-green{background:#065f46;color:#6ee7b7}.btn-green:hover{background:#047857}
+.btn-red{background:#7f1d1d;color:#fca5a5}.btn-red:hover{background:#991b1b}
+.btn-scan{background:#0e6e85;color:#fff;border:none;padding:7px 15px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .15s}
+.btn-scan:hover{background:#0891b2}
+.btn-scan:disabled{opacity:.5;cursor:not-allowed}
+
+/* Syntax highlight */
+.sh-shebang{color:#f59e0b;font-weight:bold}
+.sh-section{color:#38bdf8;font-weight:bold}
+.sh-comment{color:#374f6b}
+.sh-ok{color:#4ade80}
+.sh-warn{color:#fbbf24}
+.sh-err{color:#f87171}
+.sh-var{color:#c084fc}
+.sh-cmd{color:#7dd3a8}
+
+/* Scan satirlari */
+.srow{display:flex;align-items:center;gap:7px;padding:2px 5px;border-radius:5px;transition:background .1s}
+.srow:hover{background:#0f1e35}
+.srow input{accent-color:#f87171;flex-shrink:0;width:13px;height:13px}
+.srow span{font-size:10.5px;color:#7a9ab8;font-family:'Courier New',monospace;word-break:break-all}
+
+/* Execute modal */
+#exec-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;align-items:center;justify-content:center}
+#exec-modal.show{display:flex}
+#exec-box{background:#0a1628;border:1px solid #1a2740;border-radius:12px;width:780px;max-width:95vw;max-height:85vh;display:flex;flex-direction:column;overflow:hidden}
+#exec-out{flex:1;overflow-y:scroll;padding:14px;background:#020617;font-family:'Courier New',monospace;font-size:12px;line-height:1.6;white-space:pre-wrap;word-break:break-all;min-height:300px;max-height:55vh}
+
+/* Toast */
+#toast{position:fixed;bottom:18px;right:18px;z-index:9999;opacity:0;transform:translateY(6px);transition:opacity .28s,transform .28s;pointer-events:none}
+#toast.show{opacity:1;transform:translateY(0)}
+
+/* Animasyonlar */
+.spin{display:inline-block;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pulse{animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+</style>
+</head>
+<body>
+<div id="layout">
+
+<!-- ── TOPBAR ── -->
+<div id="topbar">
+  <div style="display:flex;align-items:center;gap:11px">
+    <div style="width:34px;height:34px;background:linear-gradient(135deg,#ef4444,#f97316);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <svg width="17" height="17" fill="none" stroke="white" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+    </div>
+    <div>
+      <div style="font-size:14px;font-weight:700;color:#f1f5f9;line-height:1.2">Linux Hardening Script Generator</div>
+      <div style="font-size:10.5px;color:#4a6080">Sunucunuza ozel guvenlik scripti olusturun</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <span id="scan-status" style="font-size:11px;color:#4a6080">Tarama bekleniyor...</span>
+    <button class="btn-scan" id="btn-scan" onclick="startScan()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
+      Sistemi Tara
+    </button>
+  </div>
+</div>
+
+<!-- ── PAKET BARI ── -->
+<div id="pkgbar">
+  <div style="font-size:9.5px;color:#4a6080;text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-bottom:7px">Hazir Paketler</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <div class="pkg" onclick="selPkg('basic',this)">
+      <div style="width:28px;height:28px;background:rgba(34,197,94,.12);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="14" height="14" fill="none" stroke="#4ade80" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div>
+      <div><div style="font-size:12.5px;font-weight:600;color:#e2e8f0">Temel Guvenlik</div><div style="font-size:10px;color:#4a6080">SSH + Kernel temel</div></div>
+    </div>
+    <div class="pkg" onclick="selPkg('aggressive',this)">
+      <div style="width:28px;height:28px;background:rgba(239,68,68,.12);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="14" height="14" fill="none" stroke="#f87171" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg></div>
+      <div><div style="font-size:12.5px;font-weight:600;color:#e2e8f0">Agresif Sikistirma</div><div style="font-size:10px;color:#4a6080">Maksimum guvenlik</div></div>
+    </div>
+    <div class="pkg" onclick="selPkg('webserver',this)">
+      <div style="width:28px;height:28px;background:rgba(59,130,246,.12);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="14" height="14" fill="none" stroke="#60a5fa" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg></div>
+      <div><div style="font-size:12.5px;font-weight:600;color:#e2e8f0">Web Sunucusu</div><div style="font-size:10px;color:#4a6080">HTTP/HTTPS + UFW</div></div>
+    </div>
+    <div class="pkg" onclick="selPkg('none',this)">
+      <div style="width:28px;height:28px;background:rgba(100,116,139,.12);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="14" height="14" fill="none" stroke="#94a3b8" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></div>
+      <div><div style="font-size:12.5px;font-weight:600;color:#e2e8f0">Sifirla</div><div style="font-size:10px;color:#4a6080">Tum secimleri temizle</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── ANA ICERIK ── -->
+<div id="main">
+
+<!-- SOL PANEL -->
+<div id="left">
+<!-- SSH -->
+<div class="sec">
+  <div class="sec-h" onclick="tog('ssh')">
+    <div style="display:flex;align-items:center;gap:7px"><div style="width:7px;height:7px;background:#22d3ee;border-radius:50%"></div><span style="font-size:12.5px;font-weight:600;color:#e2e8f0">SSH Sikistirma</span><span class="bdg" style="background:#0c3a50;color:#67e8f9">Kritik</span></div>
+    <svg class="arr dn" id="arr-ssh" width="15" height="15" fill="none" stroke="#4a6080" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+  </div>
+  <div class="sec-b" id="b-ssh" style="max-height:600px">
+    <div style="padding:8px 10px;display:flex;flex-direction:column;gap:1px">
+      <label class="row"><input type="checkbox" id="ssh_disable_root" onchange="upd()"><div><div class="rtitle">Root Girisi Kapatilsin</div><div class="rsub">PermitRootLogin no</div></div></label>
+      <label class="row"><input type="checkbox" id="ssh_disable_password" onchange="upd()"><div><div class="rtitle">Parola ile Giris Engellensin</div><div class="rsub">PasswordAuthentication no</div></div></label>
+      <label class="row"><input type="checkbox" id="ssh_disable_x11" onchange="upd()"><div><div class="rtitle">X11 Forwarding Kapatilsin</div><div class="rsub">X11Forwarding no</div></div></label>
+      <label class="row"><input type="checkbox" id="ssh_disable_agent" onchange="upd()"><div><div class="rtitle">Agent Forwarding Kapatilsin</div><div class="rsub">AllowAgentForwarding no</div></div></label>
+      <label class="row"><input type="checkbox" id="ssh_login_grace" onchange="upd()"><div><div class="rtitle">Login Grace Time (30s)</div><div class="rsub">LoginGraceTime 30</div></div></label>
+      <div style="display:flex;align-items:center;gap:9px;padding:5px 8px">
+        <span style="font-size:12.5px;color:#e2e8f0;white-space:nowrap">Max Hatali Deneme:</span>
+        <input type="number" id="ssh_max_tries" min="1" max="10" value="3" onchange="upd()">
+        <span class="rsub">MaxAuthTries</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- KERNEL -->
+<div class="sec">
+  <div class="sec-h" onclick="tog('kernel')">
+    <div style="display:flex;align-items:center;gap:7px"><div style="width:7px;height:7px;background:#facc15;border-radius:50%"></div><span style="font-size:12.5px;font-weight:600;color:#e2e8f0">Kernel ve Ag Optimizasyonu</span><span class="bdg" style="background:#3a2800;color:#fde68a">Onemli</span></div>
+    <svg class="arr dn" id="arr-kernel" width="15" height="15" fill="none" stroke="#4a6080" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+  </div>
+  <div class="sec-b" id="b-kernel" style="max-height:600px">
+    <div style="padding:8px 10px;display:flex;flex-direction:column;gap:1px">
+      <label class="row"><input type="checkbox" id="kernel_aslr" onchange="upd()"><div><div class="rtitle">ASLR Maksimum Seviye</div><div class="rsub">kernel.randomize_va_space = 2</div></div></label>
+      <label class="row"><input type="checkbox" id="kernel_ipv6" onchange="upd()"><div><div class="rtitle">IPv6 Tamamen Kapatilsin</div><div class="rsub">net.ipv6.conf.all.disable_ipv6 = 1</div></div></label>
+      <label class="row"><input type="checkbox" id="kernel_syn" onchange="upd()"><div><div class="rtitle">SYN Cookies Aktif</div><div class="rsub">net.ipv4.tcp_syncookies = 1</div></div></label>
+      <label class="row"><input type="checkbox" id="kernel_rp" onchange="upd()"><div><div class="rtitle">Reverse Path Filtering</div><div class="rsub">net.ipv4.conf.all.rp_filter = 1</div></div></label>
+      <label class="row"><input type="checkbox" id="kernel_icmp" onchange="upd()"><div><div class="rtitle">ICMP Yonlendirme Kabulu Kapali</div><div class="rsub">accept_redirects = 0</div></div></label>
+      <label class="row"><input type="checkbox" id="kernel_ipfwd" onchange="upd()"><div><div class="rtitle">IP Forwarding Kapali</div><div class="rsub">net.ipv4.ip_forward = 0</div></div></label>
+      <label class="row"><input type="checkbox" id="kernel_martians" onchange="upd()"><div><div class="rtitle">Martian Paket Loglama</div><div class="rsub">net.ipv4.conf.all.log_martians = 1</div></div></label>
+      <label class="row"><input type="checkbox" id="kernel_coredump" onchange="upd()"><div><div class="rtitle">SUID Core Dump Kapali</div><div class="rsub">fs.suid_dumpable = 0</div></div></label>
+    </div>
+  </div>
+</div>
+
+<!-- IZINLER -->
+<div class="sec">
+  <div class="sec-h" onclick="tog('perms')">
+    <div style="display:flex;align-items:center;gap:7px"><div style="width:7px;height:7px;background:#fb923c;border-radius:50%"></div><span style="font-size:12.5px;font-weight:600;color:#e2e8f0">Izinler ve SUID/SGID</span><span class="bdg" style="background:#3a1200;color:#fed7aa">Yuksek Risk</span></div>
+    <svg class="arr dn" id="arr-perms" width="15" height="15" fill="none" stroke="#4a6080" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+  </div>
+  <div class="sec-b" id="b-perms" style="max-height:400px">
+    <div style="padding:8px 10px;display:flex;flex-direction:column;gap:1px">
+      <label class="row"><input type="checkbox" id="perms_critical" onchange="upd()"><div><div class="rtitle">Kritik Dosya Izinleri Standartlara Dondurulsun</div><div class="rsub">chmod 644 /etc/passwd · 640 /etc/shadow · 700 /root</div></div></label>
+      <label class="row"><input type="checkbox" id="perms_suid" onchange="upd()"><div><div class="rtitle">Secili SUID Dosyalarindan Yetki Kaldir</div><div class="rsub">chmod u-s [dosya] — Sistem taramasindan sec</div></div></label>
+      <label class="row"><input type="checkbox" id="perms_ww" onchange="upd()"><div><div class="rtitle">World-Writable Dosyalari Duzelt</div><div class="rsub">chmod o-w [dosya] — Sistem taramasindan sec</div></div></label>
+      <label class="row"><input type="checkbox" id="perms_orphaned" onchange="upd()"><div><div class="rtitle">Sahipsiz Dosyalari Root'a Ata</div><div class="rsub">chown root:root [dosya]</div></div></label>
+    </div>
+  </div>
+</div>
+
+<!-- KULLANICI -->
+<div class="sec">
+  <div class="sec-h" onclick="tog('users')">
+    <div style="display:flex;align-items:center;gap:7px"><div style="width:7px;height:7px;background:#a78bfa;border-radius:50%"></div><span style="font-size:12.5px;font-weight:600;color:#e2e8f0">Kullanici Guvenligi</span><span class="bdg" style="background:#2a1060;color:#ddd6fe">Hesaplar</span></div>
+    <svg class="arr dn" id="arr-users" width="15" height="15" fill="none" stroke="#4a6080" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+  </div>
+  <div class="sec-b" id="b-users" style="max-height:400px">
+    <div style="padding:8px 10px;display:flex;flex-direction:column;gap:1px">
+      <label class="row"><input type="checkbox" id="users_lock_pw" onchange="upd()"><div><div class="rtitle">Parolasiz Hesaplari Kilitle</div><div class="rsub">passwd -l [kullanici]</div></div></label>
+      <label class="row"><input type="checkbox" id="users_extra_root" onchange="upd()"><div><div class="rtitle">UID 0 Ekstra Hesaplari Raporla</div><div class="rsub">awk UID==0 kontrolu</div></div></label>
+      <label class="row"><input type="checkbox" id="users_shadow" onchange="upd()"><div><div class="rtitle">Shadow Senkronizasyonu</div><div class="rsub">pwconv</div></div></label>
+      <label class="row"><input type="checkbox" id="users_pw_policy" onchange="upd()"><div><div class="rtitle">Parola Politikasi (min 12 karakter)</div><div class="rsub">pwquality.conf minlen = 12</div></div></label>
+    </div>
+  </div>
+</div>
+
+<!-- MODUL -->
+<div class="sec">
+  <div class="sec-h" onclick="tog('mods')">
+    <div style="display:flex;align-items:center;gap:7px"><div style="width:7px;height:7px;background:#f87171;border-radius:50%"></div><span style="font-size:12.5px;font-weight:600;color:#e2e8f0">Kernel Modul Karaliste</span><span class="bdg" style="background:#3a0a0a;color:#fca5a5">Donanim</span></div>
+    <svg class="arr dn" id="arr-mods" width="15" height="15" fill="none" stroke="#4a6080" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+  </div>
+  <div class="sec-b" id="b-mods" style="max-height:400px">
+    <div style="padding:8px 10px">
+      <p style="font-size:10.5px;color:#4a6080;margin-bottom:7px">Secilen moduller <span class="mono">/etc/modprobe.d/hardening.conf</span> dosyasina eklenir.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px">
+        <label class="row"><input type="checkbox" id="mod_bluetooth" value="bluetooth" onchange="upd()"><span class="rtitle">Bluetooth</span></label>
+        <label class="row"><input type="checkbox" id="mod_joydev" value="joydev" onchange="upd()"><span class="rtitle">Joydev</span></label>
+        <label class="row"><input type="checkbox" id="mod_soundcore" value="soundcore" onchange="upd()"><span class="rtitle">Soundcore</span></label>
+        <label class="row"><input type="checkbox" id="mod_usb_storage" value="usb_storage" onchange="upd()"><span class="rtitle">USB Storage</span></label>
+        <label class="row"><input type="checkbox" id="mod_firewire" value="firewire" onchange="upd()"><span class="rtitle">FireWire</span></label>
+        <label class="row"><input type="checkbox" id="mod_thunderbolt" value="thunderbolt" onchange="upd()"><span class="rtitle">Thunderbolt</span></label>
+        <label class="row"><input type="checkbox" id="mod_cramfs" value="cramfs" onchange="upd()"><span class="rtitle">cramfs</span></label>
+        <label class="row"><input type="checkbox" id="mod_dccp" value="dccp" onchange="upd()"><span class="rtitle">DCCP</span></label>
+        <label class="row"><input type="checkbox" id="mod_sctp" value="sctp" onchange="upd()"><span class="rtitle">SCTP</span></label>
+        <label class="row"><input type="checkbox" id="mod_rds" value="rds" onchange="upd()"><span class="rtitle">RDS</span></label>
+        <label class="row"><input type="checkbox" id="mod_tipc" value="tipc" onchange="upd()"><span class="rtitle">TIPC</span></label>
+        <label class="row"><input type="checkbox" id="mod_hfs" value="hfs" onchange="upd()"><span class="rtitle">HFS / HFS+</span></label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FIREWALL -->
+<div class="sec">
+  <div class="sec-h" onclick="tog('fw')">
+    <div style="display:flex;align-items:center;gap:7px"><div style="width:7px;height:7px;background:#60a5fa;border-radius:50%"></div><span style="font-size:12.5px;font-weight:600;color:#e2e8f0">Firewall (UFW)</span><span class="bdg" style="background:#0f2a50;color:#93c5fd">Ag</span></div>
+    <svg class="arr dn" id="arr-fw" width="15" height="15" fill="none" stroke="#4a6080" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+  </div>
+  <div class="sec-b" id="b-fw" style="max-height:400px">
+    <div style="padding:8px 10px;display:flex;flex-direction:column;gap:1px">
+      <label class="row"><input type="checkbox" id="fw_enable" onchange="upd()"><div><div class="rtitle">UFW Aktif Et</div><div class="rsub">default deny incoming · allow outgoing</div></div></label>
+      <div style="margin-left:18px;padding-left:9px;border-left:2px solid #1a2740;display:flex;flex-direction:column;gap:1px">
+        <label class="row"><input type="checkbox" id="fw_ssh" onchange="upd()"><div><div class="rtitle">SSH (22/tcp)</div><div class="rsub">ufw allow ssh</div></div></label>
+        <label class="row"><input type="checkbox" id="fw_http" onchange="upd()"><div><div class="rtitle">HTTP (80/tcp)</div><div class="rsub">ufw allow 80/tcp</div></div></label>
+        <label class="row"><input type="checkbox" id="fw_https" onchange="upd()"><div><div class="rtitle">HTTPS (443/tcp)</div><div class="rsub">ufw allow 443/tcp</div></div></label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AUDIT -->
+<div class="sec">
+  <div class="sec-h" onclick="tog('audit')">
+    <div style="display:flex;align-items:center;gap:7px"><div style="width:7px;height:7px;background:#4ade80;border-radius:50%"></div><span style="font-size:12.5px;font-weight:600;color:#e2e8f0">Denetim ve Loglama</span><span class="bdg" style="background:#052e16;color:#86efac">Izleme</span></div>
+    <svg class="arr dn" id="arr-audit" width="15" height="15" fill="none" stroke="#4a6080" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+  </div>
+  <div class="sec-b" id="b-audit" style="max-height:400px">
+    <div style="padding:8px 10px;display:flex;flex-direction:column;gap:1px">
+      <label class="row"><input type="checkbox" id="audit_auditd" onchange="upd()"><div><div class="rtitle">auditd Aktif Et</div><div class="rsub">systemctl enable auditd</div></div></label>
+      <label class="row"><input type="checkbox" id="audit_sudo_log" onchange="upd()"><div><div class="rtitle">Sudo Komutlarini Logla</div><div class="rsub">Defaults logfile=/var/log/sudo.log</div></div></label>
+      <label class="row"><input type="checkbox" id="audit_coredump" onchange="upd()"><div><div class="rtitle">Core Dump Kapatilsin</div><div class="rsub">* hard core 0</div></div></label>
+    </div>
+  </div>
+</div>
+
+<!-- TARAMA SONUCLARI - varsayilan ACIK -->
+<div class="sec" id="scan-sec" style="display:none">
+  <div class="sec-h" onclick="tog('scan')">
+    <div style="display:flex;align-items:center;gap:7px"><div style="width:7px;height:7px;background:#f472b6;border-radius:50%" class="pulse"></div><span style="font-size:12.5px;font-weight:600;color:#e2e8f0">Sistem Tarama Sonuclari</span><span class="bdg" style="background:#4a0020;color:#fbcfe8">Canli</span></div>
+    <svg class="arr dn" id="arr-scan" width="15" height="15" fill="none" stroke="#4a6080" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+  </div>
+  <!-- max-height yok = tamamen acik ve icindeki scroll calisir -->
+  <div id="b-scan" style="overflow-y:auto;max-height:none">
+    <div style="padding:10px" id="scan-content"></div>
+  </div>
+</div>
+
+</div><!-- /SOL PANEL -->
+<!-- SAG PANEL: TERMINAL -->
+<div id="right">
+  <div id="term-hdr">
+    <div style="display:flex;align-items:center;gap:9px">
+      <div style="display:flex;gap:5px">
+        <div style="width:11px;height:11px;border-radius:50%;background:#ef4444"></div>
+        <div style="width:11px;height:11px;border-radius:50%;background:#f59e0b"></div>
+        <div style="width:11px;height:11px;border-radius:50%;background:#22c55e"></div>
+      </div>
+      <span class="mono" style="font-size:11.5px;color:#4a6080">hardening_script.sh</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:7px">
+      <span id="line-count" class="mono" style="font-size:10.5px;color:#2d3f55">0 satir</span>
+      <button class="btn btn-gray" onclick="copyScript()">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+        Kopyala
+      </button>
+      <button class="btn btn-cyan" onclick="dlScript()">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+        .sh Indir
+      </button>
+      <button class="btn btn-green" onclick="openExec()">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Uygula
+      </button>
+    </div>
+  </div>
+  <div id="term-body">
+    <div id="prev-empty" style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#1a2740;user-select:none">
+      <svg width="52" height="52" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24" style="opacity:.25;margin-bottom:10px"><path stroke-linecap="round" stroke-linejoin="round" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+      <p style="font-size:12.5px">Soldaki formdan secim yaparak scripti olusturun</p>
+      <p style="font-size:10.5px;margin-top:3px;opacity:.5">veya hazir bir paket secin</p>
+    </div>
+    <pre id="prev-content" class="mono" style="font-size:11.5px;line-height:1.65;white-space:pre;display:none;min-height:100%"></pre>
+  </div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /layout -->
+
+<!-- ── UYGULA MODAL ── -->
+<div id="exec-modal">
+  <div id="exec-box">
+    <div style="flex-shrink:0;background:#0d1526;border-bottom:1px solid #1a2740;padding:12px 16px;display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:8px;height:8px;border-radius:50%;background:#22c55e" id="exec-dot"></div>
+        <span style="font-size:13px;font-weight:600;color:#e2e8f0">Script Calistirici</span>
+        <span id="exec-status" style="font-size:11px;color:#4a6080">Hazir</span>
+      </div>
+      <div style="display:flex;gap:7px">
+        <button class="btn btn-red" id="exec-run-btn" onclick="runScript()">
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          CALISTIR (sudo)
+        </button>
+        <button class="btn btn-gray" onclick="closeExec()">
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+          Kapat
+        </button>
+      </div>
+    </div>
+    <!-- Script onizleme (kucuk) -->
+    <div style="flex-shrink:0;background:#020617;border-bottom:1px solid #1a2740;padding:8px 14px;max-height:120px;overflow-y:auto">
+      <pre id="exec-preview" class="mono" style="font-size:10.5px;color:#4a6080;line-height:1.5;white-space:pre"></pre>
+    </div>
+    <!-- Cikti -->
+    <div id="exec-out" style="flex:1;overflow-y:scroll;padding:12px;background:#020617;font-family:'Courier New',monospace;font-size:12px;line-height:1.6;white-space:pre-wrap;word-break:break-all;min-height:250px;max-height:50vh;color:#7dd3a8">
+      <span style="color:#4a6080">Script ciktisi burada gorunecek...</span>
+    </div>
+    <div style="flex-shrink:0;background:#0d1526;border-top:1px solid #1a2740;padding:8px 14px;display:flex;align-items:center;justify-content:space-between">
+      <span style="font-size:10.5px;color:#4a6080">⚠ Bu islem geri alinamaz. Calistirmadan once scripti inceleyin.</span>
+      <button class="btn btn-gray" onclick="clearExecOut()">Ciktiyi Temizle</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast">
+  <div style="background:#0d1526;border:1px solid #1a2740;color:#e2e8f0;font-size:12.5px;padding:9px 15px;border-radius:9px;box-shadow:0 8px 30px rgba(0,0,0,.6);display:flex;align-items:center;gap:7px">
+    <span id="t-icon"></span><span id="t-msg"></span>
+  </div>
+</div>
+<script>
+// ── PAKETLER ──────────────────────────────────────────────────
+const PKGS={
+  basic:{ssh:{disable_root:true,disable_password:false,max_auth_tries:3,disable_x11:true,disable_agent_forwarding:false,login_grace_time:true},kernel:{aslr:true,disable_ipv6:false,syn_cookies:true,rp_filter:true,disable_icmp_redirect:true,disable_ip_forward:false,log_martians:false,disable_core_dumps:false},permissions:{fix_critical_perms:true,fix_suid:false,fix_world_writable:false,fix_orphaned:false},users:{lock_passwordless:false,fix_extra_roots:false,fix_shadow:false,password_policy:false},blacklist_modules:[],firewall:{enable_ufw:false,allow_ssh:true,allow_http:false,allow_https:false},audit:{enable_auditd:false,log_sudo:false,disable_coredump:false}},
+  aggressive:{ssh:{disable_root:true,disable_password:true,max_auth_tries:3,disable_x11:true,disable_agent_forwarding:true,login_grace_time:true},kernel:{aslr:true,disable_ipv6:true,syn_cookies:true,rp_filter:true,disable_icmp_redirect:true,disable_ip_forward:true,log_martians:true,disable_core_dumps:true},permissions:{fix_critical_perms:true,fix_suid:true,fix_world_writable:true,fix_orphaned:true},users:{lock_passwordless:true,fix_extra_roots:true,fix_shadow:true,password_policy:true},blacklist_modules:["bluetooth","joydev","soundcore","usb_storage","firewire","dccp","sctp","rds","tipc","cramfs"],firewall:{enable_ufw:true,allow_ssh:true,allow_http:false,allow_https:false},audit:{enable_auditd:true,log_sudo:true,disable_coredump:true}},
+  webserver:{ssh:{disable_root:true,disable_password:false,max_auth_tries:4,disable_x11:true,disable_agent_forwarding:false,login_grace_time:true},kernel:{aslr:true,disable_ipv6:false,syn_cookies:true,rp_filter:true,disable_icmp_redirect:true,disable_ip_forward:false,log_martians:false,disable_core_dumps:false},permissions:{fix_critical_perms:true,fix_suid:false,fix_world_writable:false,fix_orphaned:false},users:{lock_passwordless:true,fix_extra_roots:false,fix_shadow:false,password_policy:false},blacklist_modules:[],firewall:{enable_ufw:true,allow_ssh:true,allow_http:true,allow_https:true},audit:{enable_auditd:true,log_sudo:true,disable_coredump:false}}
+};
+
+function selPkg(k,el){
+  document.querySelectorAll('.pkg').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  if(k==='none'){resetAll();return;}
+  const p=PKGS[k];if(!p)return;
+  sc('ssh_disable_root',p.ssh.disable_root);sc('ssh_disable_password',p.ssh.disable_password);
+  sc('ssh_disable_x11',p.ssh.disable_x11);sc('ssh_disable_agent',p.ssh.disable_agent_forwarding);
+  sc('ssh_login_grace',p.ssh.login_grace_time);sv('ssh_max_tries',p.ssh.max_auth_tries);
+  sc('kernel_aslr',p.kernel.aslr);sc('kernel_ipv6',p.kernel.disable_ipv6);
+  sc('kernel_syn',p.kernel.syn_cookies);sc('kernel_rp',p.kernel.rp_filter);
+  sc('kernel_icmp',p.kernel.disable_icmp_redirect);sc('kernel_ipfwd',p.kernel.disable_ip_forward);
+  sc('kernel_martians',p.kernel.log_martians);sc('kernel_coredump',p.kernel.disable_core_dumps);
+  sc('perms_critical',p.permissions.fix_critical_perms);sc('perms_suid',p.permissions.fix_suid);
+  sc('perms_ww',p.permissions.fix_world_writable);sc('perms_orphaned',p.permissions.fix_orphaned);
+  sc('users_lock_pw',p.users.lock_passwordless);sc('users_extra_root',p.users.fix_extra_roots);
+  sc('users_shadow',p.users.fix_shadow);sc('users_pw_policy',p.users.password_policy);
+  ['bluetooth','joydev','soundcore','usb_storage','firewire','thunderbolt','cramfs','dccp','sctp','rds','tipc','hfs'].forEach(m=>{
+    const e=document.getElementById('mod_'+m);if(e)e.checked=p.blacklist_modules.includes(m);
+  });
+  sc('fw_enable',p.firewall.enable_ufw);sc('fw_ssh',p.firewall.allow_ssh);
+  sc('fw_http',p.firewall.allow_http);sc('fw_https',p.firewall.allow_https);
+  sc('audit_auditd',p.audit.enable_auditd);sc('audit_sudo_log',p.audit.log_sudo);
+  sc('audit_coredump',p.audit.disable_coredump);
+  upd();
+}
+function sc(id,v){const e=document.getElementById(id);if(e)e.checked=!!v;}
+function sv(id,v){const e=document.getElementById(id);if(e)e.value=v;}
+function resetAll(){document.querySelectorAll('input[type=checkbox]').forEach(c=>c.checked=false);sv('ssh_max_tries',3);upd();}
+
+// ── ACCORDION ─────────────────────────────────────────────────
+function tog(id){
+  const b=document.getElementById('b-'+id);
+  const a=document.getElementById('arr-'+id);
+  if(!b)return;
+  const closed=b.classList.contains('shut');
+  if(closed){b.classList.remove('shut');if(a)a.classList.add('dn');}
+  else{b.classList.add('shut');if(a)a.classList.remove('dn');}
+}
+
+// ── TARAMA ────────────────────────────────────────────────────
+async function startScan(){
+  const btn=document.getElementById('btn-scan');
+  const st=document.getElementById('scan-status');
+  btn.disabled=true;
+  btn.innerHTML='<span class="spin">&#9696;</span> Taranıyor...';
+  st.textContent='Sistem taranıyor...';st.style.color='#fbbf24';
+  try{
+    const r=await fetch('/api/scan');
+    const d=await r.json();
+    renderScan(d);
+    st.textContent='Tarama tamamlandi ✓';st.style.color='#4ade80';
+    toast('Sistem taramasi tamamlandi!','ok');
+    // Tarama bolumune scroll et
+    setTimeout(()=>{
+      const sec=document.getElementById('scan-sec');
+      if(sec)sec.scrollIntoView({behavior:'smooth',block:'start'});
+    },300);
+  }catch(e){
+    st.textContent='Hata: '+e.message;st.style.color='#f87171';
+    toast('Tarama hatasi: '+e.message,'err');
+  }finally{
+    btn.disabled=false;
+    btn.innerHTML='<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>Sistemi Tara';
+  }
+}
+
+function renderScan(data){
+  const sec=document.getElementById('scan-sec');
+  const cnt=document.getElementById('scan-content');
+  sec.style.display='block';
+  // Tarama bolumu acik kalsin (shut class'i olmadan)
+  const b=document.getElementById('b-scan');
+  if(b)b.classList.remove('shut');
+  const arr=document.getElementById('arr-scan');
+  if(arr)arr.classList.add('dn');
+
+  const blocks=[
+    {key:'suid_files',title:'Supheli SUID Dosyalari',color:'#f87171',fk:'suid_files',ck:'perms_suid',desc:'Sistem varsayilanlari gizlendi. Secilenlerden SUID biti kaldirilacak.'},
+    {key:'world_writable',title:'World-Writable Dosya/Dizinler',color:'#fb923c',fk:'world_writable_files',ck:'perms_ww',desc:'Herkes tarafindan yazilabilir. chmod o-w ile duzeltilecek.'},
+    {key:'orphaned',title:'Sahipsiz (Orphaned) Dosyalar',color:'#fbbf24',fk:'orphaned_files',ck:'perms_orphaned',desc:"Sahibi silinmis hesaplara ait. Root'a atanacak."},
+    {key:'passwordless',title:'Parolasiz Hesaplar',color:'#f87171',fk:'passwordless_users',ck:'users_lock_pw',desc:'Bu hesaplar sifresiz giris yapabilir! Secilenler kilitlenecek.'},
+    {key:'extra_roots',title:'UID 0 Ekstra Hesaplar',color:'#f87171',fk:'extra_root_users',ck:'users_extra_root',desc:'Root disinda UID 0 olan hesaplar kritik guvenlik riskidir!'},
+    {key:'non_shadowed',title:'Shadow Olmayan Hesaplar',color:'#fbbf24',fk:null,ck:'users_shadow',desc:'Parolasi /etc/passwd icinde kalan hesaplar.'},
+    {key:'open_ports',title:'Acik Portlar',color:'#60a5fa',fk:null,ck:null,desc:'Sistemde dinleyen portlar (bilgi amacli).'},
+    {key:'active_services',title:'Calisan Servisler',color:'#60a5fa',fk:null,ck:null,desc:'Aktif systemd servisleri (bilgi amacli).'},
+  ];
+  cnt.innerHTML='';
+  blocks.forEach(b=>{
+    const items=data[b.key]||[];
+    const wrap=document.createElement('div');
+    wrap.style.cssText='margin-bottom:14px';
+    wrap.innerHTML=`
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
+        <div style="width:6px;height:6px;border-radius:50%;background:${b.color};flex-shrink:0${items.length?';animation:pulse 2s infinite':''}"></div>
+        <span style="font-size:12px;font-weight:600;color:#e2e8f0">${b.title}</span>
+        <span class="bdg" style="background:#0a1628;color:${b.color}">${items.length} bulgu</span>
+      </div>
+      <p style="font-size:10.5px;color:#4a6080;margin-bottom:4px;margin-left:12px">${b.desc}</p>
+      <div id="sl-${b.key}" style="margin-left:12px"></div>`;
+    cnt.appendChild(wrap);
+    const list=document.getElementById('sl-'+b.key);
+    if(!items.length){list.innerHTML='<span style="font-size:10.5px;color:#4ade80">✓ Temiz</span>';return;}
+    items.forEach(item=>{
+      const row=document.createElement('div');
+      row.className='srow';
+      if(b.fk&&b.ck){
+        row.innerHTML=`<input type="checkbox" class="schk" data-fk="${b.fk}" data-ck="${b.ck}" value="${esc(item)}" onchange="onSchk(this)"><span>${esc(item)}</span>`;
+      }else{
+        row.innerHTML=`<span style="color:${b.color};font-size:9px">▸</span><span>${esc(item)}</span>`;
+      }
+      list.appendChild(row);
+    });
+  });
+  upd();
+}
+
+function onSchk(el){
+  const ck=el.dataset.ck;
+  if(ck){const m=document.getElementById(ck);if(m&&!m.checked)m.checked=true;}
+  upd();
+}
+function getSI(fk){return Array.from(document.querySelectorAll(`.schk[data-fk="${fk}"]:checked`)).map(e=>e.value);}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// ── PREVIEW ───────────────────────────────────────────────────
+let _pt=null;
+function upd(){clearTimeout(_pt);_pt=setTimeout(_doUpd,100);}
+
+async function _doUpd(){
+  const p=collectP();
+  const any=hasAny(p);
+  const empty=document.getElementById('prev-empty');
+  const pre=document.getElementById('prev-content');
+  if(!any){empty.style.display='flex';pre.style.display='none';document.getElementById('line-count').textContent='0 satir';window._sc=null;return;}
+  try{
+    const r=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)});
+    const d=await r.json();
+    const sc=d.script||'';
+    empty.style.display='none';pre.style.display='block';
+    pre.innerHTML=hl(sc);
+    document.getElementById('line-count').textContent=sc.split('\n').length+' satir';
+    window._sc=sc;
+  }catch(e){console.error(e);}
+}
+
+function collectP(){
+  return{
+    ssh:{disable_root:ck('ssh_disable_root'),disable_password:ck('ssh_disable_password'),max_auth_tries:vl('ssh_max_tries'),disable_x11:ck('ssh_disable_x11'),disable_agent_forwarding:ck('ssh_disable_agent'),login_grace_time:ck('ssh_login_grace')},
+    kernel:{aslr:ck('kernel_aslr'),disable_ipv6:ck('kernel_ipv6'),syn_cookies:ck('kernel_syn'),rp_filter:ck('kernel_rp'),disable_icmp_redirect:ck('kernel_icmp'),disable_ip_forward:ck('kernel_ipfwd'),log_martians:ck('kernel_martians'),disable_core_dumps:ck('kernel_coredump')},
+    permissions:{fix_critical_perms:ck('perms_critical'),fix_suid:ck('perms_suid'),fix_world_writable:ck('perms_ww'),fix_orphaned:ck('perms_orphaned')},
+    users:{lock_passwordless:ck('users_lock_pw'),fix_extra_roots:ck('users_extra_root'),fix_shadow:ck('users_shadow'),password_policy:ck('users_pw_policy')},
+    blacklist_modules:Array.from(document.querySelectorAll('#b-mods input[type=checkbox]:checked')).map(e=>e.value),
+    firewall:{enable_ufw:ck('fw_enable'),allow_ssh:ck('fw_ssh'),allow_http:ck('fw_http'),allow_https:ck('fw_https')},
+    audit:{enable_auditd:ck('audit_auditd'),log_sudo:ck('audit_sudo_log'),disable_coredump:ck('audit_coredump')},
+    suid_files:getSI('suid_files'),world_writable_files:getSI('world_writable_files'),
+    orphaned_files:getSI('orphaned_files'),passwordless_users:getSI('passwordless_users'),extra_root_users:getSI('extra_root_users'),
+  };
+}
+function ck(id){const e=document.getElementById(id);return e?e.checked:false;}
+function vl(id){const e=document.getElementById(id);return e?e.value:'';}
+function hasAny(p){
+  if(Object.values(p.ssh).some(x=>x&&x!=='3'&&x!==3))return true;
+  if(Object.values(p.kernel).some(Boolean))return true;
+  if(Object.values(p.permissions).some(Boolean))return true;
+  if(Object.values(p.users).some(Boolean))return true;
+  if(p.blacklist_modules.length)return true;
+  if(p.firewall.enable_ufw)return true;
+  if(Object.values(p.audit).some(Boolean))return true;
+  return false;
+}
+
+function hl(sc){
+  return sc.split('\n').map(line=>{
+    const e=line.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    if(e.startsWith('#!'))return`<span class="sh-shebang">${e}</span>`;
+    if(e.startsWith('# ──')||e.startsWith('# =='))return`<span class="sh-section">${e}</span>`;
+    if(e.startsWith('#'))return`<span class="sh-comment">${e}</span>`;
+    if(e.includes("'[+]")||e.includes('"[+]'))return`<span class="sh-ok">${e}</span>`;
+    if(e.includes("'[*]")||e.includes('"[*]')||e.includes("'[!]")||e.includes('"[!]'))return`<span class="sh-warn">${e}</span>`;
+    if(e.includes("'[!!!]")||e.includes('"[!!!]'))return`<span class="sh-err">${e}</span>`;
+    if(/^(LOG_FILE|SSHD|SYSCTL|MODPROBE|exec |set )/.test(e))return`<span class="sh-var">${e}</span>`;
+    return`<span class="sh-cmd">${e}</span>`;
+  }).join('\n');
+}
+
+// ── KOPYALA / INDIR ───────────────────────────────────────────
+function copyScript(){
+  if(!window._sc){toast('Once bir secim yapin!','warn');return;}
+  navigator.clipboard.writeText(window._sc).then(()=>toast('Script panoya kopyalandi!','ok')).catch(()=>toast('Kopyalama basarisiz.','err'));
+}
+function dlScript(){
+  if(!window._sc){toast('Once bir secim yapin!','warn');return;}
+  const b=new Blob([window._sc],{type:'text/x-sh'});
+  const u=URL.createObjectURL(b);
+  const a=document.createElement('a');
+  a.href=u;a.download='hardening_'+new Date().toISOString().slice(0,10)+'.sh';a.click();
+  URL.revokeObjectURL(u);toast('Script indirildi!','ok');
+}
+
+// ── UYGULA MODAL ──────────────────────────────────────────────
+function openExec(){
+  if(!window._sc){toast('Once bir secim yapin!','warn');return;}
+  document.getElementById('exec-preview').textContent=window._sc;
+  document.getElementById('exec-out').innerHTML='<span style="color:#4a6080">Script ciktisi burada gorunecek...</span>';
+  document.getElementById('exec-status').textContent='Hazir';
+  document.getElementById('exec-status').style.color='#4a6080';
+  document.getElementById('exec-modal').classList.add('show');
+}
+function closeExec(){document.getElementById('exec-modal').classList.remove('show');}
+function clearExecOut(){document.getElementById('exec-out').innerHTML='<span style="color:#4a6080">Temizlendi.</span>';}
+
+async function runScript(){
+  if(!window._sc)return;
+  const btn=document.getElementById('exec-run-btn');
+  const out=document.getElementById('exec-out');
+  const st=document.getElementById('exec-status');
+  btn.disabled=true;
+  btn.innerHTML='<span class="spin">&#9696;</span> Calistiriliyor...';
+  st.textContent='Calistiriliyor...';st.style.color='#fbbf24';
+  out.innerHTML='<span style="color:#fbbf24">Script calistiriliyor, lutfen bekleyin...\n</span>';
+  try{
+    const r=await fetch('/api/execute',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({script:window._sc})});
+    const d=await r.json();
+    if(d.output){
+      out.innerHTML='';
+      const lines=d.output.split('\n');
+      lines.forEach(line=>{
+        const span=document.createElement('span');
+        if(line.includes('[+]'))span.style.color='#4ade80';
+        else if(line.includes('[*]'))span.style.color='#fbbf24';
+        else if(line.includes('[!]')||line.includes('[!!!]'))span.style.color='#f87171';
+        else if(line.includes('Error')||line.includes('error'))span.style.color='#f87171';
+        else span.style.color='#7dd3a8';
+        span.textContent=line+'\n';
+        out.appendChild(span);
+      });
+      out.scrollTop=out.scrollHeight;
+    }
+    if(d.returncode===0){
+      st.textContent='Basarili ✓';st.style.color='#4ade80';
+      toast('Script basariyla calistirildi!','ok');
+    }else{
+      st.textContent='Hata (kod: '+d.returncode+')';st.style.color='#f87171';
+      toast('Script hatayla tamamlandi.','err');
+    }
+  }catch(e){
+    out.innerHTML+='<span style="color:#f87171">Baglanti hatasi: '+e.message+'</span>';
+    st.textContent='Baglanti hatasi';st.style.color='#f87171';
+  }finally{
+    btn.disabled=false;
+    btn.innerHTML='<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>CALISTIR (sudo)';
+  }
+}
+
+// Modal disina tiklaninca kapat
+document.getElementById('exec-modal').addEventListener('click',function(e){if(e.target===this)closeExec();});
+
+// ── TOAST ─────────────────────────────────────────────────────
+function toast(msg,type){
+  const t=document.getElementById('toast');
+  const icons={ok:'<svg width="13" height="13" fill="none" stroke="#4ade80" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>',err:'<svg width="13" height="13" fill="none" stroke="#f87171" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>',warn:'<svg width="13" height="13" fill="none" stroke="#fbbf24" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01"/></svg>'};
+  document.getElementById('t-icon').innerHTML=icons[type]||icons.ok;
+  document.getElementById('t-msg').textContent=msg;
+  t.classList.add('show');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+document.addEventListener('DOMContentLoaded',()=>upd());
+</script>
+</body>
+</html>
