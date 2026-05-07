@@ -42,7 +42,7 @@ başlatıyorsunuz size bir web te çalıştırmanız için link veriyor.
 
 <img width="1024" height="442" alt="image" src="https://github.com/user-attachments/assets/36e00c47-31f6-41a7-a055-2ee14b0d8a78" />
 
-ara yüzün sağ üstünden tarama başlatabiliyorsunuz sisteminizi taradıktan sonra size 3 farklı öneride bulunuyor öneriler arasında kendinize uygun olanı seçiyorsunuz alt kısımdanda istediğiniz şekilde özelleştirebiliyorsunuz.
+ara yüzün sağ üstünden tarama başlatabiliyorsunuz sisteminizi taradıktan sonra size 3 farklı öneride bulunuyor öneriler arasında kendinize uygun olanı seçiyorsunuz alt kısımdanda istediğiniz şekilde özelleştirebiliyorsunuz. en sonda ister kopyalayın isterseniz .sh dosyasını inidirn istersenizde direk tek tuşlaya uygulayabilirsiniz.
 
 
 
