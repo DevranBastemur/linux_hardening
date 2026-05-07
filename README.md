@@ -36,11 +36,14 @@ Yüzeysel taramaların aksine, sistemin çekirdek ayarlarına (Kernel), ağ filt
 * **Yetki:** `sudo` (Sistem çekirdeği ve servis yapılandırmaları için root yetkileri zorunludur)
 
 ---
+<img width="607" height="160" alt="image" src="https://github.com/user-attachments/assets/75b217ae-6f54-4609-a986-ebde56ff2163" />
 
-## 🚀 Kurulum ve Kullanım
+başlatıyorsunuz size bir web te çalıştırmanız için link veriyor.
 
-### 1. Ortamı Hazırlama
-Projeyi yerel makinenize veya sunucunuza klonlayın ve gerekli dizine gidin:
-```bash
-git clone [https://github.com/KULLANICI_ADIN/hardening-tool.git](https://github.com/KULLANICI_ADIN/hardening-tool.git)
-cd hardening-tool
+<img width="1024" height="442" alt="image" src="https://github.com/user-attachments/assets/36e00c47-31f6-41a7-a055-2ee14b0d8a78" />
+
+ara yüzün sağ üstünden tarama başlatabiliyorsunuz sisteminizi taradıktan sonra size 3 farklı öneride bulunuyor öneriler arasında kendinize uygun olanı seçiyorsunuz alt kısımdanda istediğiniz şekilde özelleştirebiliyorsunuz.
+
+
+
+
