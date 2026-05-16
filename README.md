@@ -11,7 +11,7 @@
 
 ## 📖 Proje Hakkında
 
-**Linux Hardening & Auditing Panel**, hedef Linux sistemlerindeki yapılandırma zafiyetlerini canlı olarak analiz eden ve tespit edilen bulgulara yönelik otomatik iyileştirme (remediation) betikleri üreten web tabanlı bir güvenlik aracıdır. 
+**Linux Hardening & Auditing Panel**, hedef Linux sistemlerindeki yapılandırma zafiyetlerini canlı olarak analiz eden ve tespit edilen bulgulara yönelik otomatik iyileştirme  (remediation) betikleri üreten web tabanlı bir güvenlik aracıdır. 
 
 Yüzeysel taramaların aksine, sistemin çekirdek ayarlarına (Kernel), ağ filtrelemesine (UFW) ve izleme mekanizmalarına (Auditd) doğrudan müdahale edebilme yeteneğine sahiptir. Saniyeler içinde sisteminizin risk haritasını çıkarır ve size özel bir bash betiği derler.
 
